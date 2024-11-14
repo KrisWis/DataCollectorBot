@@ -7,3 +7,5 @@ class UserStates(StatesGroup):
     write_phoneNumber = State()
 
     write_data_for_analyz = State()
+
+    write_question = State()

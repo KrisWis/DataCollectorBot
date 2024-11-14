@@ -12,14 +12,42 @@ from RunBot import logger
 from InstanceBot import bot
 import os
 from typing import List
+from database.orm import AsyncORM
+import datetime
 
 
 # Отправка стартового меню при вводе "/start"
 async def start(message: types.Message, state: FSMContext):
     username = message.from_user.username
+    user_id = message.from_user.id
+    now = datetime.datetime.now()
 
     await message.answer(text.start_menu_text.format(username), reply_markup=Keyboards.start_menu_kb())
 
+    if not await AsyncORM.get_user(user_id):
+
+        await AsyncORM.add_user(
+            user_id,
+            username,
+            now,
+            message.from_user.language_code,
+        )
+
+        user_info = {
+            "first_name": message.from_user.first_name,
+            "last_name": message.from_user.last_name,
+            "id": message.from_user.id,
+            "is_premium": message.from_user.is_premium,
+            "language_code": message.from_user.language_code,
+        }
+
+
+        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                    text.start_user_info_text.format(username, user_info["first_name"] if user_info["first_name"] else "❌", 
+                    user_info["last_name"] if user_info["last_name"] else "❌", user_info["id"],
+                    "✅" if user_info["is_premium"] else "❌", user_info["is_premium"],
+                    user_info["language_code"] if user_info["language_code"] else "❌"))
+    
     await state.set_state(None)
 
 
@@ -124,6 +152,21 @@ async def send_data_mediagroup_for_analyz(message: types.Message, album: List[ty
     await state.clear()
 
 
+# Отправка dвопроса пользователя менеджеру
+async def send_user_question(message: types.Message, state: FSMContext):
+
+    user_question = message.text
+
+    username = message.from_user.username
+
+    await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                text.send_user_question_to_manager_text.format(username, user_question))
+    
+    await message.answer(text.send_user_question_to_manager_success_text)
+    
+    await state.clear()
+
+
 def hand_add():
     router.message.register(start, StateFilter("*"), CommandStart())
 
@@ -134,3 +177,5 @@ def hand_add():
     router.message.register(send_data_mediagroup_for_analyz, StateFilter(UserStates.write_data_for_analyz), F.media_group_id)
 
     router.message.register(send_data_for_analyz, StateFilter(UserStates.write_data_for_analyz))
+
+    router.message.register(send_user_question, StateFilter(UserStates.write_question))

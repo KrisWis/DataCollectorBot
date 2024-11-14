@@ -19,7 +19,16 @@ async def wait_user_data_for_analyz(call: types.CallbackQuery, state: FSMContext
     await state.set_state(UserStates.write_data_for_analyz)
 
 
+# Хендлер после нажатия кнопки "Задать вопрос менеджеру". Отправка сообщения, чтобы пользователь написал свой вопрос.
+async def wait_user_question(call: types.CallbackQuery, state: FSMContext):
+    await call.message.edit_text(text.send_your_question_text)
+
+    await state.set_state(UserStates.write_question)
+
+
 def hand_add():
     router.callback_query.register(wait_user_name, lambda call: call.data == "start|get_methodology")
 
     router.callback_query.register(wait_user_data_for_analyz, lambda call: call.data == "start|send_data")
+
+    router.callback_query.register(wait_user_question, lambda call: call.data == "start|ask_question")
