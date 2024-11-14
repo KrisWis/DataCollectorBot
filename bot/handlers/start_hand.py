@@ -1,4 +1,4 @@
-from aiogram import types
+from aiogram import types, F
 from InstanceBot import router
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -11,6 +11,7 @@ from phonenumbers.phonenumberutil import number_type
 from RunBot import logger
 from InstanceBot import bot
 import os
+from typing import List
 
 
 # Отправка стартового меню при вводе "/start"
@@ -53,7 +54,7 @@ async def send_pdf_file(message: types.Message, state: FSMContext):
             await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
                         text.send_contact_data_to_manager_text.format(username, user_name, user_phoneNumber))
             
-            await state.set_state(None)
+            await state.clear()
             
             return
         
@@ -62,9 +63,74 @@ async def send_pdf_file(message: types.Message, state: FSMContext):
     await message.answer(text.your_phoneNumber_is_invalid_text)
 
 
+# Отправка данных, введённых пользователем, на анализ менеджеру
+async def send_data_for_analyz(message: types.Message, state: FSMContext):
+    username = message.from_user.username
+
+    user_text = message.text or message.caption
+
+    photo = message.photo
+
+    if user_text or photo:
+        if photo: 
+            photo = photo[-1]
+
+            if user_text:
+                await bot.send_photo(os.getenv("MANAGER_GROUP_ID"), photo=photo.file_id, 
+                                caption=text.send_data_for_analyz_to_manager_text.format(username, user_text))
+            else:
+                await bot.send_photo(os.getenv("MANAGER_GROUP_ID"), photo=photo.file_id, 
+                                caption=text.send_data_for_analyz_to_manager_with_image_without_text.format(username))
+
+        else:
+            await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                    text.send_data_for_analyz_to_manager_text.format(username, user_text))
+
+        await message.answer(text.send_data_for_analyz_to_manager_success_text)
+
+        await state.clear()
+
+    else:
+        await message.answer(text.data_is_invalid_text)
+
+
+# Отправка данных, введённых пользователем, на анализ менеджеру (ДЛЯ МЕДИАГРУПП)
+async def send_data_mediagroup_for_analyz(message: types.Message, album: List[types.Message], state: FSMContext):
+    group_elements = []
+
+    username = message.from_user.username
+
+    user_text = message.caption
+
+    for element in album:
+        try:
+            input_media = types.InputMediaPhoto(media=element.photo[-1].file_id)
+
+            group_elements.append(input_media)
+        except:
+            await message.answer(text.send_data_for_analyz_to_manager_only_images_text)
+
+    if user_text:
+        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                        text.send_data_for_analyz_to_manager_mediagroup_text.format(username, user_text))
+    else:
+        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                        text.send_data_for_analyz_to_manager_with_images_without_text.format(username))
+        
+    await bot.send_media_group(os.getenv("MANAGER_GROUP_ID"), group_elements)
+
+    await message.answer(text.send_data_for_analyz_to_manager_success_text)
+
+    await state.clear()
+
+
 def hand_add():
     router.message.register(start, StateFilter("*"), CommandStart())
 
     router.message.register(wait_user_phoneNumber, StateFilter(UserStates.write_name))
 
     router.message.register(send_pdf_file, StateFilter(UserStates.write_phoneNumber))
+
+    router.message.register(send_data_mediagroup_for_analyz, StateFilter(UserStates.write_data_for_analyz), F.media_group_id)
+
+    router.message.register(send_data_for_analyz, StateFilter(UserStates.write_data_for_analyz))

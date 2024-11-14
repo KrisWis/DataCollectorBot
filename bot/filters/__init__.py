@@ -1,0 +1,1 @@
+from filters.MediaGroupFilter import MediaGroupMiddleware

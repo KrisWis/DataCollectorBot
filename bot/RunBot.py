@@ -3,6 +3,7 @@ from InstanceBot import bot, dp
 import handlers
 import asyncio
 import logging
+from filters import MediaGroupMiddleware
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='Logs.log', level=logging.INFO)
@@ -24,9 +25,11 @@ async def on_startup() -> None:
 
     logging.basicConfig(level=logging.INFO)
 
-    print(f'Бот запущен - @{bot_info.username}')
-
     await bot.delete_webhook(drop_pending_updates=True)
+
+    dp.message.middleware(MediaGroupMiddleware())
+
+    print(f'Бот запущен - @{bot_info.username}')
 
     await dp.start_polling(bot, skip_updates=True)
 

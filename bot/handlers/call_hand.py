@@ -12,5 +12,14 @@ async def wait_user_name(call: types.CallbackQuery, state: FSMContext):
     await state.set_state(UserStates.write_name)
 
 
+# Хендлер после нажатия кнопки "Отправить данные на анализ". Отправка сообщения, чтобы пользователь отправил данные на анализ.
+async def wait_user_data_for_analyz(call: types.CallbackQuery, state: FSMContext):
+    await call.message.edit_text(text.send_your_data_for_analyz_text)
+
+    await state.set_state(UserStates.write_data_for_analyz)
+
+
 def hand_add():
     router.callback_query.register(wait_user_name, lambda call: call.data == "start|get_methodology")
+
+    router.callback_query.register(wait_user_data_for_analyz, lambda call: call.data == "start|send_data")

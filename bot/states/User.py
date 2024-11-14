@@ -5,3 +5,5 @@ class UserStates(StatesGroup):
     write_name = State()
 
     write_phoneNumber = State()
+
+    write_data_for_analyz = State()
