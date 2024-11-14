@@ -41,10 +41,7 @@ async def start(message: types.Message, state: FSMContext):
             "is_premium": message.from_user.is_premium,
             "language_code": message.from_user.language_code,
         }
-        
-        print(user_info["language_code"] if user_info["language_code"] else "❌")
-
-
+    
         await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
                     text.start_user_info_text.format(username, 
                     user_info["first_name"] if user_info["first_name"] else "❌", 
