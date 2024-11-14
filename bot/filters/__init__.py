@@ -1,1 +1,1 @@
-from filters.MediaGroupFilter import MediaGroupMiddleware
+from filters.UsernameIsRequiredFilter import UsernameIsRequiredFilter

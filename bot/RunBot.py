@@ -3,7 +3,8 @@ from InstanceBot import bot, dp
 import handlers
 import asyncio
 import logging
-from filters import MediaGroupMiddleware
+from middlewares import MediaGroupMiddleware
+
 from database.orm import AsyncORM
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,7 @@ logging.basicConfig(filename='Logs.log', level=logging.INFO)
 async def on_startup() -> None:
 
     # Пересоздаём таблицы в базе данных (для тестов).
-    # await AsyncORM.create_tables()
+    await AsyncORM.create_tables()
 
     # Определяем команды и добавляем их в бота
     commands = [

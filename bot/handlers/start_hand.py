@@ -14,6 +14,7 @@ import os
 from typing import List
 from database.orm import AsyncORM
 import datetime
+from filters.UsernameIsRequiredFilter import UsernameIsRequiredFilter
 
 
 # Отправка стартового меню при вводе "/start"
@@ -40,12 +41,15 @@ async def start(message: types.Message, state: FSMContext):
             "is_premium": message.from_user.is_premium,
             "language_code": message.from_user.language_code,
         }
+        
+        print(user_info["language_code"] if user_info["language_code"] else "❌")
 
 
         await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                    text.start_user_info_text.format(username, user_info["first_name"] if user_info["first_name"] else "❌", 
+                    text.start_user_info_text.format(username, 
+                    user_info["first_name"] if user_info["first_name"] else "❌", 
                     user_info["last_name"] if user_info["last_name"] else "❌", user_info["id"],
-                    "✅" if user_info["is_premium"] else "❌", user_info["is_premium"],
+                    "✅" if user_info["is_premium"] else "❌",
                     user_info["language_code"] if user_info["language_code"] else "❌"))
     
     await state.set_state(None)
@@ -168,7 +172,7 @@ async def send_user_question(message: types.Message, state: FSMContext):
 
 
 def hand_add():
-    router.message.register(start, StateFilter("*"), CommandStart())
+    router.message.register(start, StateFilter("*"), CommandStart(), UsernameIsRequiredFilter())
 
     router.message.register(wait_user_phoneNumber, StateFilter(UserStates.write_name))
 

@@ -20,6 +20,8 @@ start_user_info_text = """
     🌐 Код языка: {}
 """
 
+username_is_required_text = "‼️ Для корректной работы бота, вам необходимо иметь username!"
+
 send_your_name_text = "✍️ Напишите своё имя"
 
 send_your_phoneNumber_text = """
