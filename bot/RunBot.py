@@ -4,7 +4,6 @@ import handlers
 import asyncio
 import logging
 from middlewares import MediaGroupMiddleware
-
 from database.orm import AsyncORM
 
 logger = logging.getLogger(__name__)
