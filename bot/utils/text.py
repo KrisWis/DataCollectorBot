@@ -115,7 +115,7 @@ send_data_for_analyz_to_manager_mediagroup_text = """
 Текст:
 <i>{}</i>
 
-👇 Изображения, прикреплённые к сообщению:
+👇 Файлы, прикреплённые к сообщению:
 """
 
 send_data_for_analyz_to_manager_mediagroup_without_text_text = """
@@ -134,7 +134,7 @@ send_data_for_analyz_to_manager_mediagroup_without_text_text = """
 
 🌐 Код языка: {}
 
-👇 Изображения, прикреплённые к сообщению:
+👇 Файлы, прикреплённые к сообщению:
 """
 
 send_data_for_analyz_to_manager_with_images_without_text = """
@@ -178,7 +178,7 @@ send_data_for_analyz_to_manager_only_images_text = "‼️ Прикреплят�
 send_your_question_text = "Напишите ваш вопрос менеджеру:"
 
 send_user_question_to_manager_text = """
-❓ Вопрос пользователя @{}:
+❓ Вопрос пользователя {}:
 
 🆔 Telegram ID: {}
 

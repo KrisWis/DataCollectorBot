@@ -10,6 +10,8 @@ class UserStates(StatesGroup):
 
     write_username_for_reports = State()
 
+    write_username_for_question = State()
+
     write_phoneNumber = State()
 
     write_data_for_analyz = State()

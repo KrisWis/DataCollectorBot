@@ -18,10 +18,10 @@ async def wait_user_name(call: types.CallbackQuery, state: FSMContext):
     username = call.from_user.username
 
     if username:
-        await call.message.answer(text.send_your_name_with_username_text)
+        await call.message.edit_text(text.send_your_name_with_username_text)
         await state.set_state(UserStates.write_name)
     else:
-        await call.message.answer(text.send_your_name_without_username_text)
+        await call.message.edit_text(text.send_your_name_without_username_text)
         await state.set_state(UserStates.write_username)
 
 
@@ -34,9 +34,15 @@ async def wait_user_data_for_analyz(call: types.CallbackQuery, state: FSMContext
 
 # Хендлер после нажатия кнопки "Задать вопрос менеджеру". Отправка сообщения, чтобы пользователь написал свой вопрос.
 async def wait_user_question(call: types.CallbackQuery, state: FSMContext):
-    await call.message.edit_text(text.send_your_question_text)
 
-    await state.set_state(UserStates.write_question)
+    username = call.from_user.username
+
+    if username:
+        await call.message.edit_text(text.send_your_question_text)
+        await state.set_state(UserStates.write_question)
+    else:
+        await call.message.edit_text(text.send_your_name_without_username_text)
+        await state.set_state(UserStates.write_username_for_question)
 
 
 # Хендлер после нажатия кнопки "Наши квартальные отчёты". Отправка сообщения, чтобы пользователь написал своё имя

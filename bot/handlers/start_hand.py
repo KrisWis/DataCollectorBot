@@ -59,12 +59,15 @@ async def wait_user_phoneNumber(message: types.Message, state: FSMContext):
 
     name = message.text
 
-    await state.update_data(name=name)
-    
-    await message.answer(text.send_your_phoneNumber_text)
+    if name:
 
-    await state.set_state(UserStates.write_phoneNumber)
+        await state.update_data(name=name)
+        
+        await message.answer(text.send_your_phoneNumber_text)
 
+        await state.set_state(UserStates.write_phoneNumber)
+    else:
+        message.answer(text.data_is_invalid_text)
 
 # Когда юзер отправил номер телефона, при анализе
 async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
@@ -93,7 +96,6 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
             }
 
             if "media_group_elements" in data:
-                print(data["user_text"])
                 if data["user_text"]:
                     await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
                                     text.send_data_for_analyz_to_manager_mediagroup_text.
@@ -132,6 +134,63 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                         user_info["last_name"] if user_info["last_name"] else "❌",
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌"))
+                    
+            elif "video_file_id" in data:
+                if data["user_text"]:
+                    await bot.send_video(os.getenv("MANAGER_GROUP_ID"), video=data["video_file_id"], 
+                                    caption=text.send_data_for_analyz_to_manager_with_images_with_text.
+                                    format(user_info["user_name"],
+                        user_info["id"], name, user_phoneNumber,
+                        user_info["last_name"] if user_info["last_name"] else "❌",
+                        "✅" if user_info["is_premium"] else "❌",
+                        user_info["language_code"] if user_info["language_code"] else "❌",
+                        data["user_text"]))
+                else:
+                    await bot.send_video(os.getenv("MANAGER_GROUP_ID"), video=data["video_file_id"], 
+                                    caption=text.send_data_for_analyz_to_manager_with_images_without_text.
+                                    format(user_info["user_name"],
+                        user_info["id"], name, user_phoneNumber,
+                        user_info["last_name"] if user_info["last_name"] else "❌",
+                        "✅" if user_info["is_premium"] else "❌",
+                        user_info["language_code"] if user_info["language_code"] else "❌"))
+                    
+            elif "audio_file_id" in data:
+                if data["user_text"]:
+                    await bot.send_audio(os.getenv("MANAGER_GROUP_ID"), audio=data["audio_file_id"], 
+                                    caption=text.send_data_for_analyz_to_manager_with_images_with_text.
+                                    format(user_info["user_name"],
+                        user_info["id"], name, user_phoneNumber,
+                        user_info["last_name"] if user_info["last_name"] else "❌",
+                        "✅" if user_info["is_premium"] else "❌",
+                        user_info["language_code"] if user_info["language_code"] else "❌",
+                        data["user_text"]))
+                else:
+                    await bot.send_audio(os.getenv("MANAGER_GROUP_ID"), audio=data["audio_file_id"], 
+                                    caption=text.send_data_for_analyz_to_manager_with_images_without_text.
+                                    format(user_info["user_name"],
+                        user_info["id"], name, user_phoneNumber,
+                        user_info["last_name"] if user_info["last_name"] else "❌",
+                        "✅" if user_info["is_premium"] else "❌",
+                        user_info["language_code"] if user_info["language_code"] else "❌"))
+                    
+            elif "document_file_id" in data:
+                if data["user_text"]:
+                    await bot.send_document(os.getenv("MANAGER_GROUP_ID"), document=data["document_file_id"], 
+                                    caption=text.send_data_for_analyz_to_manager_with_images_with_text.
+                                    format(user_info["user_name"],
+                        user_info["id"], name, user_phoneNumber,
+                        user_info["last_name"] if user_info["last_name"] else "❌",
+                        "✅" if user_info["is_premium"] else "❌",
+                        user_info["language_code"] if user_info["language_code"] else "❌",
+                        data["user_text"]))
+                else:
+                    await bot.send_document(os.getenv("MANAGER_GROUP_ID"), document=data["document_file_id"], 
+                                    caption=text.send_data_for_analyz_to_manager_with_images_without_text.
+                                    format(user_info["user_name"],
+                        user_info["id"], name, user_phoneNumber,
+                        user_info["last_name"] if user_info["last_name"] else "❌",
+                        "✅" if user_info["is_premium"] else "❌",
+                        user_info["language_code"] if user_info["language_code"] else "❌"))
 
             else:
                 await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
@@ -158,21 +217,26 @@ async def send_pdf_file(message: types.Message, state: FSMContext):
 
     name = message.text
 
-    data = await state.get_data()
+    if name:
 
-    if "user_name" in data:
-        username = data["user_name"]
+        data = await state.get_data()
+
+        if "user_name" in data:
+            username = data["user_name"]
+        else:
+            username = f"@{message.from_user.username}"
+
+        user_id = message.from_user.id
+                
+        await message.answer(text.send_pdf_file_text, reply_markup=Keyboards.back_to_start_menu_kb())
+
+        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                    text.send_contact_data_to_manager_text.format(username, user_id, name))
+        
+        await state.clear()
+
     else:
-        username = f"@{message.from_user.username}"
-
-    user_id = message.from_user.id
-            
-    await message.answer(text.send_pdf_file_text, reply_markup=Keyboards.back_to_start_menu_kb())
-
-    await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                text.send_contact_data_to_manager_text.format(username, user_id, name))
-    
-    await state.clear()
+        message.answer(text.data_is_invalid_text)
 
 
 # Отправка сообщения о том, что отчёты будут поступать
@@ -180,49 +244,52 @@ async def send_message_about_reports(message: types.Message, state: FSMContext):
 
     name = message.text
 
-    data = await state.get_data()
+    if name:
 
-    if "user_name" in data:
-        username = data["user_name"]
+        data = await state.get_data()
+
+        if "user_name" in data:
+            username = data["user_name"]
+        else:
+            username = f"@{message.from_user.username}"
+
+        user_info = {
+            "user_name": username,
+            "first_name": message.from_user.first_name,
+            "last_name": message.from_user.last_name,
+            "id": message.from_user.id,
+            "is_premium": message.from_user.is_premium,
+            "language_code": message.from_user.language_code,
+        }
+
+        now = datetime.datetime.now()
+
+        current_month_name = now.strftime("%B")
+
+        current_month_text = "января"
+        
+        if current_month_name in ["January", "February", "March"]:
+            current_month_text = "апреля"
+
+        elif current_month_name in ["April", "May", "June"]:
+            current_month_text = "июля"
+
+        elif current_month_name in ["July", "August", "September"]:
+            current_month_text = "октября"
+        
+        await message.answer(text.send_data_to_manager_for_reports_success_text.format(current_month_text), reply_markup=Keyboards.back_to_start_menu_kb())
+
+        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                    text.send_data_to_manager_for_reports_text.
+                    format(username,
+                            user_info["id"], name,
+                            user_info["last_name"] if user_info["last_name"] else "❌",
+                            "✅" if user_info["is_premium"] else "❌",
+                            user_info["language_code"] if user_info["language_code"] else "❌"))
+        
+        await state.clear()
     else:
-        username = f"@{message.from_user.username}"
-
-    user_info = {
-        "user_name": username,
-        "first_name": message.from_user.first_name,
-        "last_name": message.from_user.last_name,
-        "id": message.from_user.id,
-        "is_premium": message.from_user.is_premium,
-        "language_code": message.from_user.language_code,
-    }
-
-    now = datetime.datetime.now()
-
-    current_month_name = now.strftime("%B")
-
-    current_month_text = "января"
-    
-    if current_month_name in ["January", "February", "March"]:
-        current_month_text = "апреля"
-
-    elif current_month_name in ["April", "May", "June"]:
-        current_month_text = "июля"
-
-    elif current_month_name in ["July", "August", "September"]:
-        current_month_text = "октября"
-    
-    await message.answer(text.send_data_to_manager_for_reports_success_text.format(current_month_text), reply_markup=Keyboards.back_to_start_menu_kb())
-
-    await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                text.send_data_to_manager_for_reports_text.
-                format(username,
-                        user_info["id"], name,
-                        user_info["last_name"] if user_info["last_name"] else "❌",
-                        "✅" if user_info["is_premium"] else "❌",
-                        user_info["language_code"] if user_info["language_code"] else "❌"))
-    
-    await state.clear()
-
+        message.answer(text.data_is_invalid_text)
 
 # Отправка данных, введённых пользователем, на анализ менеджеру
 async def send_data_for_analyz(message: types.Message, state: FSMContext):
@@ -233,12 +300,24 @@ async def send_data_for_analyz(message: types.Message, state: FSMContext):
     await state.update_data(user_text=user_text)
 
     photo = message.photo
+    video = message.video
+    document = message.document
+    audio = message.audio
 
-    if user_text or photo:
+    if user_text or photo or video or document or audio:
         if photo: 
             photo = photo[-1]
 
             await state.update_data(photo_file_id=photo.file_id)
+
+        if video: 
+            await state.update_data(video_file_id=video.file_id)
+
+        if document: 
+            await state.update_data(document_file_id=document.file_id)
+
+        if audio: 
+            await state.update_data(audio_file_id=audio.file_id)
 
         await message.answer(text.send_data_for_analyz_to_manager_success_text)
 
@@ -301,6 +380,22 @@ async def send_username_by_user_for_reports(message: types.Message, state: FSMCo
         await message.answer(text.data_is_invalid_text)
 
 
+# Отправка юзернейма пользователем при задавании вопроса
+async def send_username_by_user_for_question(message: types.Message, state: FSMContext):
+
+    user_name = message.text
+
+    if user_name.startswith("@"):
+
+        await state.update_data(user_name=user_name)
+
+        await message.answer(text.send_your_question_text)
+
+        await state.set_state(UserStates.write_question)
+    else:
+        await message.answer(text.data_is_invalid_text)
+
+
 # Отправка данных, введённых пользователем, на анализ менеджеру (ДЛЯ МЕДИАГРУПП)
 async def send_data_mediagroup_for_analyz(message: types.Message, album: List[types.Message], state: FSMContext):
     group_elements = []
@@ -313,7 +408,16 @@ async def send_data_mediagroup_for_analyz(message: types.Message, album: List[ty
             user_text = element.caption
 
         try:
-            input_media = types.InputMediaPhoto(media=element.photo[-1].file_id)
+            if element.photo:
+                input_media = types.InputMediaPhoto(media=element.photo[-1].file_id)
+            elif element.video:
+                input_media = types.InputMediaVideo(media=element.video.file_id)
+            elif element.document:
+                input_media = types.InputMediaDocument(media=element.document.file_id)
+            elif element.audio:
+                input_media = types.InputMediaAudio(media=element.audio.file_id)
+            else:
+                return message.answer(text.data_is_invalid_text)
 
             group_elements.append(input_media)
         except:
@@ -337,7 +441,13 @@ async def send_user_question(message: types.Message, state: FSMContext):
 
     user_question = message.text
 
-    username = message.from_user.username
+    data = await state.get_data()
+
+    if "user_name" in data:
+        username = data["user_name"]
+    else:
+        username = f"@{message.from_user.username}"
+        
     user_id = message.from_user.id
 
     await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
@@ -356,6 +466,8 @@ def hand_add():
     router.message.register(send_username_by_user_for_methodology, StateFilter(UserStates.write_username))
 
     router.message.register(send_username_by_user_for_reports, StateFilter(UserStates.write_username_for_reports))
+
+    router.message.register(send_username_by_user_for_question, StateFilter(UserStates.write_username_for_question))
 
     router.message.register(send_message_about_reports, StateFilter(UserStates.write_name_for_reports))
 
