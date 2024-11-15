@@ -30,12 +30,12 @@ class AsyncORM:
 
     # Добавление пользователя в базу данных
     @staticmethod
-    async def add_user(user_id: int, username: str, user_reg_date: date, user_geo: str) -> bool:
+    async def add_user(user_id: int, user_reg_date: date, user_geo: str) -> bool:
 
         user = await AsyncORM.get_user(user_id=user_id)
 
         if not user:
-            user = UsersOrm(user_id=user_id, username=username, user_reg_date=user_reg_date, user_geo=user_geo)
+            user = UsersOrm(user_id=user_id, user_reg_date=user_reg_date, user_geo=user_geo)
             async with async_session() as session:
                 session.add(user)
 

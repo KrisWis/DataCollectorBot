@@ -7,7 +7,6 @@ class UsersOrm(Base):
     __tablename__ = "users"
     
     user_id: Mapped[int] = mapped_column(BigInteger(), primary_key=True, autoincrement=False)
-    username: Mapped[str] = mapped_column(String())
     user_reg_date: Mapped[date] = mapped_column(nullable=False)
     user_geo: Mapped[str] = mapped_column(String(), nullable=False)
 
