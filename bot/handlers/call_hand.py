@@ -52,16 +52,14 @@ async def wait_name_for_reports(call: types.CallbackQuery, state: FSMContext):
     username = call.from_user.username
 
     if username:
-        await call.message.answer(text.send_your_name_with_username_text)
         await state.set_state(UserStates.write_name_for_reports)
     else:
-        await call.message.answer(text.send_your_name_without_username_text)
         await state.set_state(UserStates.write_username_for_reports)
 
 
 # Хендлер после нажатия кнопки "Наши контакты". Отправка сообщения контактов.
 async def our_contacts(call: types.CallbackQuery):
-    await call.message.edit_text(text.our_contacts_text, reply_markup=Keyboards.back_to_start_menu_kb())
+    await call.message.edit_text(text.our_contacts_text, reply_markup=Keyboards.back_to_start_menu_kb(), disable_web_page_preview=True)
 
 
 def hand_add():
