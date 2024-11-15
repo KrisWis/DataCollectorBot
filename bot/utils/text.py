@@ -37,6 +37,8 @@ your_phoneNumber_is_invalid_text = "‼️ Введённый вами номе�
 send_contact_data_to_manager_text = """
 🗂 Контактные данные пользователя @{}:
 
+🆔 Telegram ID: {}
+
 👤 Имя: {}
 
 📞 Номер телефона: {}
@@ -49,6 +51,8 @@ send_data_for_analyz_to_manager_success_text = "✅ Ваши данные усп
 send_data_for_analyz_to_manager_text = """
 📝 Данные на анализ пользователя @{}:
 
+🆔 Telegram ID: {}
+
 Текст:
 <i>{}</i>
 """
@@ -56,15 +60,15 @@ send_data_for_analyz_to_manager_text = """
 send_data_for_analyz_to_manager_mediagroup_text = """
 📝 Данные на анализ пользователя @{}:
 
+🆔 Telegram ID: {}
+
 Текст:
 <i>{}</i>
 
 👇 Изображения, прикреплённые к сообщению:
 """
 
-send_data_for_analyz_to_manager_with_images_without_text = "📝 Изображения на анализ пользователя @{}:"
-
-send_data_for_analyz_to_manager_with_image_without_text = "📝 Изображение на анализ пользователя @{}:"
+send_data_for_analyz_to_manager_with_images_without_text = "📝 Изображения на анализ пользователя @{} <i>(🆔 Telegram ID: {})</i>:"
 
 data_is_invalid_text = "‼️ Некорректные данные! Попробуйте ещё раз."
 
@@ -75,6 +79,9 @@ send_your_question_text = "✍️ Напишите ваш вопрос мене�
 send_user_question_to_manager_text = """
 ❓ Вопрос пользователя @{}:
 
+🆔 Telegram ID: {}
+
+Текст:
 <i>{}</i>
 """
 

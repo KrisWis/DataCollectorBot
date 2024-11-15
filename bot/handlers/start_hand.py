@@ -14,7 +14,6 @@ import os
 from typing import List
 from database.orm import AsyncORM
 import datetime
-from filters.UsernameIsRequiredFilter import UsernameIsRequiredFilter
 
 
 # Отправка стартового меню при вводе "/start"
@@ -70,6 +69,8 @@ async def send_pdf_file(message: types.Message, state: FSMContext):
     user_phoneNumber = message.text
 
     username = message.from_user.username
+
+    user_id = message.from_user.id
     
     try:
         if carrier._is_mobile(number_type(phonenumbers.parse(user_phoneNumber))):
@@ -81,7 +82,7 @@ async def send_pdf_file(message: types.Message, state: FSMContext):
             user_name = data["user_name"]
 
             await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                        text.send_contact_data_to_manager_text.format(username, user_name, user_phoneNumber))
+                        text.send_contact_data_to_manager_text.format(username, user_id, user_name, user_phoneNumber))
             
             await state.clear()
             
@@ -95,6 +96,7 @@ async def send_pdf_file(message: types.Message, state: FSMContext):
 # Отправка данных, введённых пользователем, на анализ менеджеру
 async def send_data_for_analyz(message: types.Message, state: FSMContext):
     username = message.from_user.username
+    user_id = message.from_user.id
 
     user_text = message.text or message.caption
 
@@ -106,14 +108,14 @@ async def send_data_for_analyz(message: types.Message, state: FSMContext):
 
             if user_text:
                 await bot.send_photo(os.getenv("MANAGER_GROUP_ID"), photo=photo.file_id, 
-                                caption=text.send_data_for_analyz_to_manager_text.format(username, user_text))
+                                caption=text.send_data_for_analyz_to_manager_text.format(username, user_id, user_text))
             else:
                 await bot.send_photo(os.getenv("MANAGER_GROUP_ID"), photo=photo.file_id, 
-                                caption=text.send_data_for_analyz_to_manager_with_image_without_text.format(username))
+                                caption=text.send_data_for_analyz_to_manager_with_images_without_text.format(username))
 
         else:
             await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                    text.send_data_for_analyz_to_manager_text.format(username, user_text))
+                    text.send_data_for_analyz_to_manager_text.format(username, user_id, user_text))
 
         await message.answer(text.send_data_for_analyz_to_manager_success_text)
 
@@ -128,6 +130,7 @@ async def send_data_mediagroup_for_analyz(message: types.Message, album: List[ty
     group_elements = []
 
     username = message.from_user.username
+    user_id = message.from_user.id
 
     user_text = message.caption
 
@@ -141,10 +144,10 @@ async def send_data_mediagroup_for_analyz(message: types.Message, album: List[ty
 
     if user_text:
         await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                        text.send_data_for_analyz_to_manager_mediagroup_text.format(username, user_text))
+                        text.send_data_for_analyz_to_manager_mediagroup_text.format(username, user_id, user_text))
     else:
         await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                        text.send_data_for_analyz_to_manager_with_images_without_text.format(username))
+                        text.send_data_for_analyz_to_manager_with_images_without_text.format(username, user_id))
         
     await bot.send_media_group(os.getenv("MANAGER_GROUP_ID"), group_elements)
 
@@ -159,9 +162,10 @@ async def send_user_question(message: types.Message, state: FSMContext):
     user_question = message.text
 
     username = message.from_user.username
+    user_id = message.from_user.id
 
     await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                text.send_user_question_to_manager_text.format(username, user_question))
+                text.send_user_question_to_manager_text.format(username, user_id, user_question))
     
     await message.answer(text.send_user_question_to_manager_success_text)
     
@@ -169,7 +173,7 @@ async def send_user_question(message: types.Message, state: FSMContext):
 
 
 def hand_add():
-    router.message.register(start, StateFilter("*"), CommandStart(), UsernameIsRequiredFilter())
+    router.message.register(start, StateFilter("*"), CommandStart())
 
     router.message.register(wait_user_phoneNumber, StateFilter(UserStates.write_name))
 
