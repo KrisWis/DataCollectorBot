@@ -37,3 +37,12 @@ def continue_send_data_kb():
     InlineKeyboardButton(text='Нет', callback_data='continue_send_data|no')]])
 
     return kb
+
+
+# Клавиатура для проверки ввода данных для анализа
+def check_send_data_kb():
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Всё ОК', callback_data='continue_send_data|ok'),
+    InlineKeyboardButton(text='Добавить данные', callback_data='continue_send_data|yes')]])
+
+    return kb
