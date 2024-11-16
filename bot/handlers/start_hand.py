@@ -124,24 +124,6 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
             if sum([len(photo_file_ids), len(video_file_ids), len(audio_file_ids), len(document_file_ids)]) > 1 or len(photo_file_ids) > 1 or len(video_file_ids) > 1 or len(audio_file_ids) > 1 or len(document_file_ids) > 1:
                 media_group_elements = []
 
-                if user_text_arr_text:
-                    await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                                    text.send_data_for_analyz_to_manager_mediagroup_text.
-                                    format(user_info["user_name"],
-                        user_info["id"], name, user_phoneNumber,
-                        user_info["last_name"] if user_info["last_name"] else "❌",
-                        "✅" if user_info["is_premium"] else "❌",
-                        user_info["language_code"] if user_info["language_code"] else "❌",
-                        user_text_arr_text))
-                else:
-                    await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                                    text.send_data_for_analyz_to_manager_mediagroup_without_text_text.
-                                    format(user_info["user_name"],
-                        user_info["id"], name, user_phoneNumber,
-                        user_info["last_name"] if user_info["last_name"] else "❌",
-                        "✅" if user_info["is_premium"] else "❌",
-                        user_info["language_code"] if user_info["language_code"] else "❌"))
-
                 for photo_file_id in photo_file_ids:
                     media_group_elements.append(types.InputMediaPhoto(media=photo_file_id))
 
@@ -165,7 +147,24 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
 
                         for media_group_element in media_group_elements_arr:
                             await bot.send_media_group(os.getenv("MANAGER_GROUP_ID"), media_group_element)
-
+                    
+                    if user_text_arr_text:
+                        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                                        text.send_data_for_analyz_to_manager_mediagroup_text.
+                                        format(user_info["user_name"],
+                            user_info["id"], name, user_phoneNumber,
+                            user_info["last_name"] if user_info["last_name"] else "❌",
+                            "✅" if user_info["is_premium"] else "❌",
+                            user_info["language_code"] if user_info["language_code"] else "❌",
+                            user_text_arr_text))
+                    else:
+                        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                                        text.send_data_for_analyz_to_manager_mediagroup_without_text_text.
+                                        format(user_info["user_name"],
+                            user_info["id"], name, user_phoneNumber,
+                            user_info["last_name"] if user_info["last_name"] else "❌",
+                            "✅" if user_info["is_premium"] else "❌",
+                            user_info["language_code"] if user_info["language_code"] else "❌"))
 
             elif len(photo_file_ids):
                 if user_text_arr_text:

@@ -125,14 +125,6 @@ async def continue_send_data_no(call: types.CallbackQuery, state: FSMContext):
     if sum([len(photo_file_ids), len(video_file_ids), len(audio_file_ids), len(document_file_ids)]) > 1 or len(photo_file_ids) > 1 or len(video_file_ids) > 1 or len(audio_file_ids) > 1 or len(document_file_ids) > 1:
         media_group_elements = []
 
-        if user_text_arr_text:
-            await call.message.answer(
-                            text.send_data_for_analyz_to_user_mediagroup_text.
-                            format(user_text_arr_text), reply_markup=Keyboards.check_send_data_kb())
-        else:
-            await call.message.answer(
-                            text.send_data_for_analyz_to_user_mediagroup_without_text_text, reply_markup=Keyboards.check_send_data_kb())
-
         for photo_file_id in photo_file_ids:
             media_group_elements.append(types.InputMediaPhoto(media=photo_file_id))
 
@@ -156,6 +148,14 @@ async def continue_send_data_no(call: types.CallbackQuery, state: FSMContext):
 
                 for media_group_element in media_group_elements_arr:
                     await call.message.answer_media_group(media_group_element, reply_markup=Keyboards.check_send_data_kb())
+
+            if user_text_arr_text:
+                await call.message.answer(
+                                text.send_data_for_analyz_to_user_mediagroup_text.
+                                format(user_text_arr_text), reply_markup=Keyboards.check_send_data_kb())
+            else:
+                await call.message.answer(
+                                text.send_data_for_analyz_to_user_mediagroup_without_text_text, reply_markup=Keyboards.check_send_data_kb())
 
 
     elif len(photo_file_ids):
