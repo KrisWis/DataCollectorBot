@@ -13,7 +13,7 @@ from database.orm import AsyncORM
 async def start(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text(text.start_menu_text, reply_markup=Keyboards.start_menu_kb())
 
-    await state.set_state(None)
+    await state.clear()
 
 
 # Хендлер после нажатия кнопки "Получить методичку". Отправка сообщения, чтобы пользователь отправил своё имя.
