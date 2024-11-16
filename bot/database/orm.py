@@ -35,7 +35,7 @@ class AsyncORM:
         user = await AsyncORM.get_user(user_id=user_id)
 
         if not user:
-            user = UsersOrm(user_id=user_id, user_reg_date=user_reg_date, user_geo=user_geo)
+            user = UsersOrm(user_id=user_id, user_reg_date=user_reg_date, user_geo=user_geo, user_join_contacts=False)
             async with async_session() as session:
                 session.add(user)
 
@@ -43,3 +43,16 @@ class AsyncORM:
             return True
         else:
             return False
+        
+
+    # Изменение того, что юзер зашел в контакты
+    @staticmethod
+    async def user_join_contacts(user_id: int) -> bool:
+        async with async_session() as session:
+            stmt = (update(UsersOrm)
+                    .where(UsersOrm.user_id == user_id)
+                    .values(user_join_contacts=True))
+            
+            await session.execute(stmt)
+            await session.commit()
+            return True

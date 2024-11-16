@@ -9,6 +9,7 @@ class UsersOrm(Base):
     user_id: Mapped[int] = mapped_column(BigInteger(), primary_key=True, autoincrement=False)
     user_reg_date: Mapped[date] = mapped_column(nullable=False)
     user_geo: Mapped[str] = mapped_column(String(), nullable=False)
+    user_join_contacts: Mapped[bool] = mapped_column(Boolean(), nullable=False)
 
     __table_args__ = (
         UniqueConstraint('user_id', name='unique_user'),

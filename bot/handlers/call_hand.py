@@ -6,6 +6,7 @@ from utils import text
 from keyboards import Keyboards
 from InstanceBot import bot
 import os
+from database.orm import AsyncORM
 
 
 # Хендлер после нажатия кнопки "Назад". Отправка сообщения пользователю с главным меню.
@@ -61,25 +62,30 @@ async def wait_name_for_reports(call: types.CallbackQuery, state: FSMContext):
 
 # Хендлер после нажатия кнопки "Наши контакты". Отправка сообщения контактов.
 async def our_contacts(call: types.CallbackQuery):
-    user_info = {
-        "username": call.from_user.username,
-        "first_name": call.from_user.first_name,
-        "last_name": call.from_user.last_name,
-        "id": call.from_user.id,
-        "is_premium": call.from_user.is_premium,
-        "language_code": call.from_user.language_code,
-    }
-
     await call.message.edit_text(text.our_contacts_text, reply_markup=Keyboards.back_to_start_menu_kb(), disable_web_page_preview=True)
+    user_id = call.from_user.id
 
-    await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                text.user_join_contacts_info_text.format(
-                f"@{user_info["username"]}" if user_info["username"] else '"Юзернейм отсутствует"', 
-                user_info["first_name"] if user_info["first_name"] else "❌", 
-                user_info["last_name"] if user_info["last_name"] else "❌", user_info["id"],
-                "✅" if user_info["is_premium"] else "❌",
-                user_info["language_code"] if user_info["language_code"] else "❌"))
-    
+    user = await AsyncORM.get_user(user_id)
+
+    if not user.user_join_contacts:
+        user_info = {
+            "username": call.from_user.username,
+            "first_name": call.from_user.first_name,
+            "last_name": call.from_user.last_name,
+            "id": user_id,
+            "is_premium": call.from_user.is_premium,
+            "language_code": call.from_user.language_code,
+        }
+
+        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                    text.user_join_contacts_info_text.format(
+                    f"@{user_info["username"]}" if user_info["username"] else '"Юзернейм отсутствует"', 
+                    user_info["first_name"] if user_info["first_name"] else "❌", 
+                    user_info["last_name"] if user_info["last_name"] else "❌", user_info["id"],
+                    "✅" if user_info["is_premium"] else "❌",
+                    user_info["language_code"] if user_info["language_code"] else "❌"))
+        
+        await AsyncORM.user_join_contacts(user_id)
 
 # Хендлер после нажатия кнопки "Нет". Отправка сообщения, если пользователь не продолжил ввод для анализа.
 async def continue_send_data_no(call: types.CallbackQuery, state: FSMContext):
