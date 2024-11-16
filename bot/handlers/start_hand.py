@@ -344,8 +344,6 @@ async def send_message_about_reports(message: types.Message, state: FSMContext):
 
 # Отправка данных, введённых пользователем, на анализ менеджеру
 async def send_data_for_analyz(message: types.Message, state: FSMContext):
-    await state.set_state(None)
-
     data = await state.get_data()
 
     user_text = message.text or message.caption
@@ -408,7 +406,10 @@ async def send_data_for_analyz(message: types.Message, state: FSMContext):
 
             await state.update_data(audio_file_ids=audio_file_ids)
 
-        await message.answer(text.send_data_for_analyz_continue_text, reply_markup=Keyboards.continue_send_data_kb())
+        current_state = await state.get_state()
+        if current_state == UserStates.write_data_for_analyz:
+            await state.set_state(None)
+            await message.answer(text.send_data_for_analyz_continue_text, reply_markup=Keyboards.continue_send_data_kb())
     else:
         await message.answer(text.data_is_invalid_text)
 
@@ -479,8 +480,6 @@ async def send_username_by_user_for_question(message: types.Message, state: FSMC
 
 # Отправка данных, введённых пользователем, на анализ менеджеру (ДЛЯ МЕДИАГРУПП)
 async def send_data_mediagroup_for_analyz(message: types.Message, album: List[types.Message], state: FSMContext):
-    await state.set_state(None)
-    
     user_text = ""
 
     for element in album:
@@ -546,7 +545,10 @@ async def send_data_mediagroup_for_analyz(message: types.Message, album: List[ty
     user_text_arr.append(user_text)
     await state.update_data(user_text_arr=user_text_arr)
 
-    await message.answer(text.send_data_for_analyz_continue_text, reply_markup=Keyboards.continue_send_data_kb())          
+    current_state = await state.get_state()
+    if current_state == UserStates.write_data_for_analyz:
+        await state.set_state(None)
+        await message.answer(text.send_data_for_analyz_continue_text, reply_markup=Keyboards.continue_send_data_kb())          
 
 
 # Отправка dвопроса пользователя менеджеру
