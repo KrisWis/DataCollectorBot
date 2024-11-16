@@ -89,8 +89,11 @@ async def our_contacts(call: types.CallbackQuery):
 
 # Хендлер после нажатия кнопки "Нет". Отправка сообщения, если пользователь не продолжил ввод для анализа.
 async def continue_send_data_no(call: types.CallbackQuery, state: FSMContext):
-    await call.message.edit_text(text.send_data_for_analyz_to_manager_success_text)
+    user_id = call.from_user.id
+    message_id = call.message.message_id
 
+    await bot.delete_message(user_id, message_id)
+    
     data = await state.get_data()
 
     user_text_arr_text = ""
@@ -220,6 +223,8 @@ async def check_send_data_ok(call: types.CallbackQuery, state: FSMContext):
     message_id = call.message.message_id
 
     await bot.delete_message(user_id, message_id)
+
+    await call.message.answer(text.send_data_for_analyz_to_manager_success_text)
     
     if username:
         await call.message.answer(text.send_your_name_with_username_text)
