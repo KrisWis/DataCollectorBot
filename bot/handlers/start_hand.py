@@ -568,7 +568,7 @@ async def send_user_question(message: types.Message, state: FSMContext):
     await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
                 text.send_user_question_to_manager_text.format(username, user_id, user_question))
     
-    await message.answer(text.send_user_question_to_manager_success_text)
+    await message.answer(text.send_user_question_to_manager_success_text, reply_markup=Keyboards.back_to_start_menu_kb())
     
     await state.clear()
 
