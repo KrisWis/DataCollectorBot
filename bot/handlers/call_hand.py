@@ -133,11 +133,11 @@ async def continue_send_data_no(call: types.CallbackQuery, state: FSMContext):
         for photo_file_id in photo_file_ids:
             media_group_elements.append(types.InputMediaPhoto(media=photo_file_id))
 
-        for audio_file_id in audio_file_ids:
-            media_group_elements.append(types.InputMediaAudio(media=audio_file_id))
-
         for video_file_id in video_file_ids:
             media_group_elements.append(types.InputMediaVideo(media=video_file_id))
+
+        for audio_file_id in audio_file_ids:
+            await call.message.answer_audio(audio=audio_file_id)
         
         for document_file_id in document_file_ids:
             await call.message.answer_document(document=document_file_id)
