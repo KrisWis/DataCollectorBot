@@ -217,3 +217,19 @@ our_contacts_text = """
 
 По всем вопросам пишите: @AlgorithmicaTeam
 """
+
+user_join_contacts_info_text = """
+🆕 Пользователь {} зашёл в контакты бота! 
+
+ℹ️ Его данные:
+
+    👤 Имя: {}
+
+    👤 Фамилия: {}
+
+    🆔 Telegram ID: {}
+
+    🤴 Наличие Telegram Premium: {}
+
+    🌐 Код языка: {}
+"""
