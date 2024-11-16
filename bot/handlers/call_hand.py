@@ -62,6 +62,26 @@ async def our_contacts(call: types.CallbackQuery):
     await call.message.edit_text(text.our_contacts_text, reply_markup=Keyboards.back_to_start_menu_kb(), disable_web_page_preview=True)
 
 
+# Хендлер после нажатия кнопки "Нет". Отправка сообщения, если пользователь не продолжил ввод для анализа.
+async def continue_send_data_no(call: types.CallbackQuery, state: FSMContext):
+    username = call.from_user.username
+    await call.message.edit_text(text.send_data_for_analyz_to_manager_success_text)
+
+    if username:
+        await call.message.answer(text.send_your_name_with_username_text)
+        await state.set_state(UserStates.write_name_for_analyz)
+    else:
+        await call.message.answer(text.send_your_name_without_username_text)
+        await state.set_state(UserStates.write_username_for_analyz)
+
+
+# Хендлер после нажатия кнопки "Да". Отправка сообщения, чтобы пользователь продолжил ввод для анализа.
+async def continue_send_data_yes(call: types.CallbackQuery, state: FSMContext):
+    await call.message.edit_text(text.send_data_for_analyz_continue_yes_text)
+
+    await state.set_state(UserStates.write_data_for_analyz)
+
+
 def hand_add():
     router.callback_query.register(start, lambda call: call.data == "start")
 
@@ -74,3 +94,7 @@ def hand_add():
     router.callback_query.register(wait_name_for_reports, lambda call: call.data == "start|our_reports")
 
     router.callback_query.register(our_contacts, lambda call: call.data == "start|contacts")
+
+    router.callback_query.register(continue_send_data_no, lambda call: call.data == "continue_send_data|no")
+
+    router.callback_query.register(continue_send_data_yes, lambda call: call.data == "continue_send_data|yes")

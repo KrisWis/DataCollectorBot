@@ -28,3 +28,12 @@ def back_to_start_menu_kb():
     [InlineKeyboardButton(text='Назад', callback_data='start')]])
 
     return kb
+
+
+# Клавиатура для продолжения ввода данных для анализа
+def continue_send_data_kb():
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Да', callback_data='continue_send_data|yes'),
+    InlineKeyboardButton(text='Нет', callback_data='continue_send_data|no')]])
+
+    return kb

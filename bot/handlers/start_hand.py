@@ -82,6 +82,12 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
         user_name = f"@{message.from_user.username}"
 
     name = data["name"]
+
+    user_text_arr_text = ""
+
+    if "user_text_arr" in data:
+        if len(data["user_text_arr"]):
+            user_text_arr_text = "\n\n".join([text for text in data["user_text_arr"] if text is not None and text != ""])
     
     try:
         if carrier._is_mobile(number_type(phonenumbers.parse(user_phoneNumber))):
@@ -95,8 +101,30 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                 "language_code": message.from_user.language_code,
             }
 
-            if "media_group_elements" in data:
-                if data["user_text"]:
+            if "photo_file_ids" in data:
+                photo_file_ids = data["photo_file_ids"]
+            else:
+                photo_file_ids = []
+
+            if "video_file_ids" in data:
+                video_file_ids = data["video_file_ids"]
+            else:
+                video_file_ids = []
+
+            if "audio_file_ids" in data:
+                audio_file_ids = data["audio_file_ids"]
+            else:
+                audio_file_ids = []
+
+            if "document_file_ids" in data:
+                document_file_ids = data["document_file_ids"]
+            else:
+                document_file_ids = []
+
+            if sum([len(photo_file_ids), len(video_file_ids), len(audio_file_ids), len(document_file_ids)]) > 1 or len(photo_file_ids) > 1 or len(video_file_ids) > 1 or len(audio_file_ids) > 1 or len(document_file_ids) > 1:
+                media_group_elements = []
+
+                if user_text_arr_text:
                     await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
                                     text.send_data_for_analyz_to_manager_mediagroup_text.
                                     format(user_info["user_name"],
@@ -104,7 +132,7 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                         user_info["last_name"] if user_info["last_name"] else "❌",
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌",
-                        data["user_text"]))
+                        user_text_arr_text))
                 else:
                     await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
                                     text.send_data_for_analyz_to_manager_mediagroup_without_text_text.
@@ -113,21 +141,34 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                         user_info["last_name"] if user_info["last_name"] else "❌",
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌"))
-                    
-                await bot.send_media_group(os.getenv("MANAGER_GROUP_ID"), data["media_group_elements"])
+
+                for photo_file_id in photo_file_ids:
+                    media_group_elements.append(types.InputMediaPhoto(media=photo_file_id))
+
+                for audio_file_id in audio_file_ids:
+                    media_group_elements.append(types.InputMediaAudio(media=audio_file_id))
+
+                for video_file_id in video_file_ids:
+                    media_group_elements.append(types.InputMediaVideo(media=video_file_id))
+                
+                for document_file_id in document_file_ids:
+                    await bot.send_document(os.getenv("MANAGER_GROUP_ID"), document=document_file_id)
+
+                if len(media_group_elements):
+                    await bot.send_media_group(os.getenv("MANAGER_GROUP_ID"), media_group_elements)
     
-            elif "photo_file_id" in data:
-                if data["user_text"]:
-                    await bot.send_photo(os.getenv("MANAGER_GROUP_ID"), photo=data["photo_file_id"], 
+            elif len(photo_file_ids):
+                if user_text_arr_text:
+                    await bot.send_photo(os.getenv("MANAGER_GROUP_ID"), photo=photo_file_ids[0], 
                                     caption=text.send_data_for_analyz_to_manager_with_images_with_text.
                                     format(user_info["user_name"],
                         user_info["id"], name, user_phoneNumber,
                         user_info["last_name"] if user_info["last_name"] else "❌",
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌",
-                        data["user_text"]))
+                        user_text_arr_text))
                 else:
-                    await bot.send_photo(os.getenv("MANAGER_GROUP_ID"), photo=data["photo_file_id"], 
+                    await bot.send_photo(os.getenv("MANAGER_GROUP_ID"), photo=photo_file_ids[0], 
                                     caption=text.send_data_for_analyz_to_manager_with_images_without_text.
                                     format(user_info["user_name"],
                         user_info["id"], name, user_phoneNumber,
@@ -135,18 +176,18 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌"))
                     
-            elif "video_file_id" in data:
-                if data["user_text"]:
-                    await bot.send_video(os.getenv("MANAGER_GROUP_ID"), video=data["video_file_id"], 
+            elif len(video_file_ids):
+                if user_text_arr_text:
+                    await bot.send_video(os.getenv("MANAGER_GROUP_ID"), video=video_file_ids[0], 
                                     caption=text.send_data_for_analyz_to_manager_with_images_with_text.
                                     format(user_info["user_name"],
                         user_info["id"], name, user_phoneNumber,
                         user_info["last_name"] if user_info["last_name"] else "❌",
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌",
-                        data["user_text"]))
+                        user_text_arr_text))
                 else:
-                    await bot.send_video(os.getenv("MANAGER_GROUP_ID"), video=data["video_file_id"], 
+                    await bot.send_video(os.getenv("MANAGER_GROUP_ID"), video=video_file_ids[0], 
                                     caption=text.send_data_for_analyz_to_manager_with_images_without_text.
                                     format(user_info["user_name"],
                         user_info["id"], name, user_phoneNumber,
@@ -154,18 +195,18 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌"))
                     
-            elif "audio_file_id" in data:
-                if data["user_text"]:
-                    await bot.send_audio(os.getenv("MANAGER_GROUP_ID"), audio=data["audio_file_id"], 
+            elif len(audio_file_ids):
+                if user_text_arr_text:
+                    await bot.send_audio(os.getenv("MANAGER_GROUP_ID"), audio=audio_file_ids[0], 
                                     caption=text.send_data_for_analyz_to_manager_with_images_with_text.
                                     format(user_info["user_name"],
                         user_info["id"], name, user_phoneNumber,
                         user_info["last_name"] if user_info["last_name"] else "❌",
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌",
-                        data["user_text"]))
+                        user_text_arr_text))
                 else:
-                    await bot.send_audio(os.getenv("MANAGER_GROUP_ID"), audio=data["audio_file_id"], 
+                    await bot.send_audio(os.getenv("MANAGER_GROUP_ID"), audio=audio_file_ids[0], 
                                     caption=text.send_data_for_analyz_to_manager_with_images_without_text.
                                     format(user_info["user_name"],
                         user_info["id"], name, user_phoneNumber,
@@ -173,18 +214,18 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌"))
                     
-            elif "document_file_id" in data:
-                if data["user_text"]:
-                    await bot.send_document(os.getenv("MANAGER_GROUP_ID"), document=data["document_file_id"], 
+            elif len(document_file_ids):
+                if user_text_arr_text:
+                    await bot.send_document(os.getenv("MANAGER_GROUP_ID"), document=document_file_ids[0], 
                                     caption=text.send_data_for_analyz_to_manager_with_images_with_text.
                                     format(user_info["user_name"],
                         user_info["id"], name, user_phoneNumber,
                         user_info["last_name"] if user_info["last_name"] else "❌",
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌",
-                        data["user_text"]))
+                        user_text_arr_text))
                 else:
-                    await bot.send_document(os.getenv("MANAGER_GROUP_ID"), document=data["document_file_id"], 
+                    await bot.send_document(os.getenv("MANAGER_GROUP_ID"), document=document_file_ids[0], 
                                     caption=text.send_data_for_analyz_to_manager_with_images_without_text.
                                     format(user_info["user_name"],
                         user_info["id"], name, user_phoneNumber,
@@ -199,7 +240,7 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                         user_info["last_name"] if user_info["last_name"] else "❌",
                         "✅" if user_info["is_premium"] else "❌",
                         user_info["language_code"] if user_info["language_code"] else "❌",
-                        data["user_text"]))
+                        user_text_arr_text))
                 
             await message.answer(text.send_data_for_analyz_success_text, reply_markup=Keyboards.back_to_start_menu_kb())
             
@@ -293,41 +334,71 @@ async def send_message_about_reports(message: types.Message, state: FSMContext):
 
 # Отправка данных, введённых пользователем, на анализ менеджеру
 async def send_data_for_analyz(message: types.Message, state: FSMContext):
-    username = message.from_user.username
+    data = await state.get_data()
 
     user_text = message.text or message.caption
+    
+    if "user_text_arr" in data:
+        user_text_arr = data["user_text_arr"]
+    else:
+        user_text_arr = []
 
-    await state.update_data(user_text=user_text)
+    user_text_arr.append(user_text)
+
+    await state.update_data(user_text_arr=user_text_arr)
 
     photo = message.photo
     video = message.video
     document = message.document
     audio = message.audio
 
-    if user_text or photo or video or document or audio:
+    if user_text_arr or photo or video or document or audio:
         if photo: 
             photo = photo[-1]
 
-            await state.update_data(photo_file_id=photo.file_id)
+            if "photo_file_ids" in data:
+                photo_file_ids = data["photo_file_ids"]
+            else:
+                photo_file_ids = []
+
+            photo_file_ids.append(photo.file_id)
+
+            await state.update_data(photo_file_ids=photo_file_ids)
 
         if video: 
-            await state.update_data(video_file_id=video.file_id)
+
+            if "video_file_ids" in data:
+                video_file_ids = data["video_file_ids"]
+            else:
+                video_file_ids = []
+
+            video_file_ids.append(video.file_id)
+
+            await state.update_data(video_file_ids=video_file_ids)
 
         if document: 
-            await state.update_data(document_file_id=document.file_id)
+            if "document_file_ids" in data:
+                document_file_ids = data["document_file_ids"]
+            else:
+                document_file_ids = []
+
+            document_file_ids.append(document.file_id)
+
+            await state.update_data(document_file_ids=document_file_ids)
 
         if audio: 
-            await state.update_data(audio_file_id=audio.file_id)
+            if "audio_file_ids" in data:
+                audio_file_ids = data["audio_file_ids"]
+            else:
+                audio_file_ids = []
 
-        await message.answer(text.send_data_for_analyz_to_manager_success_text)
+            audio_file_ids.append(audio.file_id)
 
-        if username:
-            await message.answer(text.send_your_name_with_username_text)
-            await state.set_state(UserStates.write_name_for_analyz)
-        else:
-            await message.answer(text.send_your_name_without_username_text)
-            await state.set_state(UserStates.write_username_for_analyz)
+            await state.update_data(audio_file_ids=audio_file_ids)
 
+        await message.answer(text.send_data_for_analyz_continue_text, reply_markup=Keyboards.continue_send_data_kb())
+
+        await state.set_state(None)
     else:
         await message.answer(text.data_is_invalid_text)
 
@@ -398,42 +469,74 @@ async def send_username_by_user_for_question(message: types.Message, state: FSMC
 
 # Отправка данных, введённых пользователем, на анализ менеджеру (ДЛЯ МЕДИАГРУПП)
 async def send_data_mediagroup_for_analyz(message: types.Message, album: List[types.Message], state: FSMContext):
-    group_elements = []
-
     user_text = ""
-    username = message.from_user.username
 
     for element in album:
+        data = await state.get_data()
+
         if element.caption:
             user_text = element.caption
 
         try:
-            if element.photo:
-                input_media = types.InputMediaPhoto(media=element.photo[-1].file_id)
-            elif element.video:
-                input_media = types.InputMediaVideo(media=element.video.file_id)
-            elif element.document:
-                input_media = types.InputMediaDocument(media=element.document.file_id)
-            elif element.audio:
-                input_media = types.InputMediaAudio(media=element.audio.file_id)
+            if element.photo: 
+                photo = element.photo[-1]
+
+                if "photo_file_ids" in data:
+                    photo_file_ids = data["photo_file_ids"]
+                else:
+                    photo_file_ids = []
+
+                photo_file_ids.append(photo.file_id)
+
+                await state.update_data(photo_file_ids=photo_file_ids)
+
+            elif element.video: 
+
+                if "video_file_ids" in data:
+                    video_file_ids = data["video_file_ids"]
+                else:
+                    video_file_ids = []
+
+                video_file_ids.append(element.video.file_id)
+
+                await state.update_data(video_file_ids=video_file_ids)
+
+            elif element.document: 
+                if "document_file_ids" in data:
+                    document_file_ids = data["document_file_ids"]
+                else:
+                    document_file_ids = []
+
+                document_file_ids.append(element.document.file_id)
+
+                await state.update_data(document_file_ids=document_file_ids)
+
+            elif element.audio: 
+                if "audio_file_ids" in data:
+                    audio_file_ids = data["audio_file_ids"]
+                else:
+                    audio_file_ids = []
+
+                audio_file_ids.append(element.audio.file_id)
+
+                await state.update_data(audio_file_ids=audio_file_ids)
             else:
                 return message.answer(text.data_is_invalid_text)
+        except Exception as e:
+            logger.info(e)
+            await message.answer(text.send_data_for_analyz_to_manager_formatError_text)
+    
+    if "user_text_arr" in data:
+        user_text_arr = data["user_text_arr"]
+    else:
+        user_text_arr = []
 
-            group_elements.append(input_media)
-        except:
-            await message.answer(text.send_data_for_analyz_to_manager_only_images_text)
-
-    await state.update_data(media_group_elements=group_elements)
+    user_text_arr.append(user_text)
     await state.update_data(user_text=user_text)
 
-    await message.answer(text.send_data_for_analyz_to_manager_success_text)
+    await message.answer(text.send_data_for_analyz_continue_text, reply_markup=Keyboards.continue_send_data_kb())          
 
-    if username:
-        await message.answer(text.send_your_name_with_username_text)
-        await state.set_state(UserStates.write_name_for_analyz)
-    else:
-        await message.answer(text.send_your_name_without_username_text)
-        await state.set_state(UserStates.write_username_for_analyz)
+    await state.set_state(None)
 
 
 # Отправка dвопроса пользователя менеджеру
