@@ -155,8 +155,18 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                     await bot.send_document(os.getenv("MANAGER_GROUP_ID"), document=document_file_id)
 
                 if len(media_group_elements):
-                    await bot.send_media_group(os.getenv("MANAGER_GROUP_ID"), media_group_elements)
-    
+                    try:
+                        await bot.send_media_group(os.getenv("MANAGER_GROUP_ID"), media_group_elements)
+                    except:
+                        media_group_elements_arr = []
+
+                        for index in range(0, len(media_group_elements), 10):
+                            media_group_elements_arr.append(media_group_elements[index: index + 10])
+
+                        for media_group_element in media_group_elements_arr:
+                            await bot.send_media_group(os.getenv("MANAGER_GROUP_ID"), media_group_element)
+
+
             elif len(photo_file_ids):
                 if user_text_arr_text:
                     await bot.send_photo(os.getenv("MANAGER_GROUP_ID"), photo=photo_file_ids[0], 
@@ -532,7 +542,7 @@ async def send_data_mediagroup_for_analyz(message: types.Message, album: List[ty
         user_text_arr = []
 
     user_text_arr.append(user_text)
-    await state.update_data(user_text=user_text)
+    await state.update_data(user_text_arr=user_text_arr)
 
     await message.answer(text.send_data_for_analyz_continue_text, reply_markup=Keyboards.continue_send_data_kb())          
 
