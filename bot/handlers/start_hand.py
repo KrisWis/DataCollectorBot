@@ -145,11 +145,11 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                 for photo_file_id in photo_file_ids:
                     media_group_elements.append(types.InputMediaPhoto(media=photo_file_id))
 
-                for audio_file_id in audio_file_ids:
-                    media_group_elements.append(types.InputMediaAudio(media=audio_file_id))
-
                 for video_file_id in video_file_ids:
                     media_group_elements.append(types.InputMediaVideo(media=video_file_id))
+
+                for audio_file_id in audio_file_ids:
+                    await bot.send_audio(os.getenv("MANAGER_GROUP_ID"), audio=audio_file_id)
                 
                 for document_file_id in document_file_ids:
                     await bot.send_document(os.getenv("MANAGER_GROUP_ID"), document=document_file_id)
