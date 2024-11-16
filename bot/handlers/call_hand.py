@@ -6,7 +6,6 @@ from utils import text
 from keyboards import Keyboards
 from InstanceBot import bot
 import os
-from database.orm import AsyncORM
 
 
 # Хендлер после нажатия кнопки "Назад". Отправка сообщения пользователю с главным меню.
@@ -65,27 +64,23 @@ async def our_contacts(call: types.CallbackQuery):
     await call.message.edit_text(text.our_contacts_text, reply_markup=Keyboards.back_to_start_menu_kb(), disable_web_page_preview=True)
     user_id = call.from_user.id
 
-    user = await AsyncORM.get_user(user_id)
+    user_info = {
+        "username": call.from_user.username,
+        "first_name": call.from_user.first_name,
+        "last_name": call.from_user.last_name,
+        "id": user_id,
+        "is_premium": call.from_user.is_premium,
+        "language_code": call.from_user.language_code,
+    }
 
-    if not user.user_join_contacts:
-        user_info = {
-            "username": call.from_user.username,
-            "first_name": call.from_user.first_name,
-            "last_name": call.from_user.last_name,
-            "id": user_id,
-            "is_premium": call.from_user.is_premium,
-            "language_code": call.from_user.language_code,
-        }
-
-        await bot.send_message(os.getenv("MANAGER_GROUP_ID"),
-                    text.user_join_contacts_info_text.format(
-                    f"@{user_info["username"]}" if user_info["username"] else '"Юзернейм отсутствует"', 
-                    user_info["first_name"] if user_info["first_name"] else "❌", 
-                    user_info["last_name"] if user_info["last_name"] else "❌", user_info["id"],
-                    "✅" if user_info["is_premium"] else "❌",
-                    user_info["language_code"] if user_info["language_code"] else "❌"))
-        
-        await AsyncORM.user_join_contacts(user_id)
+    await bot.send_message(os.getenv("MANAGER_GROUP_ID"),
+                text.user_join_contacts_info_text.format(
+                f"@{user_info["username"]}" if user_info["username"] else '"Юзернейм отсутствует"', 
+                user_info["first_name"] if user_info["first_name"] else "❌", 
+                user_info["last_name"] if user_info["last_name"] else "❌", user_info["id"],
+                "✅" if user_info["is_premium"] else "❌",
+                user_info["language_code"] if user_info["language_code"] else "❌"))
+    
 
 # Хендлер после нажатия кнопки "Нет". Отправка сообщения, если пользователь не продолжил ввод для анализа.
 async def continue_send_data_no(call: types.CallbackQuery, state: FSMContext):
@@ -149,14 +144,14 @@ async def continue_send_data_no(call: types.CallbackQuery, state: FSMContext):
                 for media_group_element in media_group_elements_arr:
                     await call.message.answer_media_group(media_group_element, reply_markup=Keyboards.check_send_data_kb())
 
-            if user_text_arr_text:
-                await call.message.answer(
-                                text.send_data_for_analyz_to_user_mediagroup_text.
-                                format(user_text_arr_text), reply_markup=Keyboards.check_send_data_kb())
-            else:
-                await call.message.answer(
-                                text.send_data_for_analyz_to_user_mediagroup_without_text_text, reply_markup=Keyboards.check_send_data_kb())
-
+        if user_text_arr_text:
+            await call.message.answer(
+                            text.send_data_for_analyz_to_user_mediagroup_text.
+                            format(user_text_arr_text), reply_markup=Keyboards.check_send_data_kb())
+        else:
+            await call.message.answer(
+                            text.send_data_for_analyz_to_user_mediagroup_without_text_text, reply_markup=Keyboards.check_send_data_kb())
+    
 
     elif len(photo_file_ids):
         if user_text_arr_text:

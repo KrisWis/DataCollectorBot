@@ -12,42 +12,30 @@ from RunBot import logger
 from InstanceBot import bot
 import os
 from typing import List
-from database.orm import AsyncORM
 import datetime
 from filters import MainMenuFilter
 
 
 # Отправка стартового меню при вводе "/start"
 async def start(message: types.Message, state: FSMContext):
-    user_id = message.from_user.id
-    now = datetime.datetime.now()
+    user_info = {
+        "username": message.from_user.username,
+        "first_name": message.from_user.first_name,
+        "last_name": message.from_user.last_name,
+        "id": message.from_user.id,
+        "is_premium": message.from_user.is_premium,
+        "language_code": message.from_user.language_code,
+    }
 
-    if not await AsyncORM.get_user(user_id):
+    await message.answer(text.start_text, reply_markup=Keyboards.redirect_to_start_menu_kb())
 
-        await AsyncORM.add_user(
-            user_id,
-            now,
-            message.from_user.language_code,
-        )
-
-        user_info = {
-            "username": message.from_user.username,
-            "first_name": message.from_user.first_name,
-            "last_name": message.from_user.last_name,
-            "id": message.from_user.id,
-            "is_premium": message.from_user.is_premium,
-            "language_code": message.from_user.language_code,
-        }
-
-        await message.answer(text.start_text, reply_markup=Keyboards.redirect_to_start_menu_kb())
-    
-        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                    text.start_user_info_text.format(
-                    f"@{user_info["username"]}" if user_info["username"] else '"Юзернейм отсутствует"', 
-                    user_info["first_name"] if user_info["first_name"] else "❌", 
-                    user_info["last_name"] if user_info["last_name"] else "❌", user_info["id"],
-                    "✅" if user_info["is_premium"] else "❌",
-                    user_info["language_code"] if user_info["language_code"] else "❌"))
+    await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                text.start_user_info_text.format(
+                f"@{user_info["username"]}" if user_info["username"] else '"Юзернейм отсутствует"', 
+                user_info["first_name"] if user_info["first_name"] else "❌", 
+                user_info["last_name"] if user_info["last_name"] else "❌", user_info["id"],
+                "✅" if user_info["is_premium"] else "❌",
+                user_info["language_code"] if user_info["language_code"] else "❌"))
 
 
     await message.answer(text.start_menu_text, reply_markup=Keyboards.start_menu_kb())
@@ -148,23 +136,23 @@ async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
                         for media_group_element in media_group_elements_arr:
                             await bot.send_media_group(os.getenv("MANAGER_GROUP_ID"), media_group_element)
                     
-                    if user_text_arr_text:
-                        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                                        text.send_data_for_analyz_to_manager_mediagroup_text.
-                                        format(user_info["user_name"],
-                            user_info["id"], name, user_phoneNumber,
-                            user_info["last_name"] if user_info["last_name"] else "❌",
-                            "✅" if user_info["is_premium"] else "❌",
-                            user_info["language_code"] if user_info["language_code"] else "❌",
-                            user_text_arr_text))
-                    else:
-                        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
-                                        text.send_data_for_analyz_to_manager_mediagroup_without_text_text.
-                                        format(user_info["user_name"],
-                            user_info["id"], name, user_phoneNumber,
-                            user_info["last_name"] if user_info["last_name"] else "❌",
-                            "✅" if user_info["is_premium"] else "❌",
-                            user_info["language_code"] if user_info["language_code"] else "❌"))
+                if user_text_arr_text:
+                    await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                                    text.send_data_for_analyz_to_manager_mediagroup_text.
+                                    format(user_info["user_name"],
+                        user_info["id"], name, user_phoneNumber,
+                        user_info["last_name"] if user_info["last_name"] else "❌",
+                        "✅" if user_info["is_premium"] else "❌",
+                        user_info["language_code"] if user_info["language_code"] else "❌",
+                        user_text_arr_text))
+                else:
+                    await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                                    text.send_data_for_analyz_to_manager_mediagroup_without_text_text.
+                                    format(user_info["user_name"],
+                        user_info["id"], name, user_phoneNumber,
+                        user_info["last_name"] if user_info["last_name"] else "❌",
+                        "✅" if user_info["is_premium"] else "❌",
+                        user_info["language_code"] if user_info["language_code"] else "❌"))
 
             elif len(photo_file_ids):
                 if user_text_arr_text:
