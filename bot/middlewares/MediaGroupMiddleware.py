@@ -10,7 +10,7 @@ from states.User import UserStates
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
 
-DEFAULT_DELAY = 1
+DEFAULT_DELAY = 1.2
 
 class MediaGroupMiddleware(BaseMiddleware):
     ALBUM_DATA: Dict[str, List[Message]] = {}
