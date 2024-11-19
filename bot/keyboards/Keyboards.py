@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeybo
 # Клавиатура стартового меню
 def start_menu_kb():
     kb = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Методичку «Выбор управляющего в алготрейдинге»', callback_data='start|get_methodology')],
+    [InlineKeyboardButton(text='Руководство «Выбор управляющего в алготрейдинге»', callback_data='start|get_methodology')],
     [InlineKeyboardButton(text='Анализ вашей трейдинговой стратегии', callback_data='start|send_data')],
     [InlineKeyboardButton(text='Наши квартальные отчёты', callback_data='start|our_reports')],
     [InlineKeyboardButton(text='Наши контакты', callback_data='start|contacts')],

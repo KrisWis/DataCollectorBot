@@ -15,7 +15,7 @@ async def start(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
 
 
-# Хендлер после нажатия кнопки "Получить методичку". Отправка сообщения, чтобы пользователь отправил своё имя.
+# Хендлер после нажатия кнопки "Получить Руководство". Отправка сообщения, чтобы пользователь отправил своё имя.
 async def wait_user_name(call: types.CallbackQuery, state: FSMContext):
     username = call.from_user.username
 

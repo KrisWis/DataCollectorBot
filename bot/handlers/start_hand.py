@@ -417,7 +417,7 @@ async def send_username_by_user_for_analyze(message: types.Message, state: FSMCo
         await message.answer(text.data_is_invalid_text)
 
 
-# Отправка юзернейма пользователем при получении методички
+# Отправка юзернейма пользователем при получении руководство
 async def send_username_by_user_for_methodology(message: types.Message, state: FSMContext):
 
     user_name = message.text
