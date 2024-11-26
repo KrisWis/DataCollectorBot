@@ -6,11 +6,14 @@ from utils import text
 from keyboards import Keyboards
 from InstanceBot import bot
 import os
+from Config import admins
+import Config
 
 
 # Хендлер после нажатия кнопки "Назад". Отправка сообщения пользователю с главным меню.
 async def start(call: types.CallbackQuery, state: FSMContext):
-    await call.message.edit_text(text.start_menu_text, reply_markup=Keyboards.start_menu_kb())
+    await call.message.edit_text(text.start_menu_text, reply_markup=Keyboards
+    .start_menu_kb(call.from_user.id in admins, Config.crypto_draw_is_turned_on))
 
     await state.clear()
 
@@ -229,6 +232,34 @@ async def check_send_data_ok(call: types.CallbackQuery, state: FSMContext):
         await state.set_state(UserStates.write_username_for_analyz)
 
 
+# Хендлер после нажатия кнопки "Розыгрыш криптовалюты". Отправка сообщения, чтобы пользователь написал своё имя
+async def wait_name_for_crypto_draw(call: types.CallbackQuery, state: FSMContext):
+    username = call.from_user.username
+
+    if username:
+        await call.message.edit_text(text.send_your_name_with_username_text)
+        await state.set_state(UserStates.write_name_for_crypto_draw)
+    else:
+        await call.message.edit_text(text.send_your_name_without_username_text)
+        await state.set_state(UserStates.write_username_for_crypto_draw)
+
+
+# Хендлер после нажатия кнопки "Включить розыгрыш".
+async def crypto_draw_turn_on(call: types.CallbackQuery):
+    Config.crypto_draw_is_turned_on = True
+
+    await call.message.edit_text(text.crypto_draw_turn_on_text, 
+        reply_markup=Keyboards.back_to_start_menu_kb())
+    
+
+# Хендлер после нажатия кнопки "Выключить розыгрыш".
+async def crypto_draw_turn_off(call: types.CallbackQuery):
+    Config.crypto_draw_is_turned_on = False
+
+    await call.message.edit_text(text.crypto_draw_turn_off_text, 
+        reply_markup=Keyboards.back_to_start_menu_kb())
+
+
 def hand_add():
     router.callback_query.register(start, lambda call: call.data == "start")
 
@@ -240,6 +271,8 @@ def hand_add():
 
     router.callback_query.register(wait_name_for_reports, lambda call: call.data == "start|our_reports")
 
+    router.callback_query.register(wait_name_for_crypto_draw, lambda call: call.data == "start|crypto_draw")
+
     router.callback_query.register(our_contacts, lambda call: call.data == "start|contacts")
 
     router.callback_query.register(continue_send_data_no, lambda call: call.data == "continue_send_data|no")
@@ -247,3 +280,7 @@ def hand_add():
     router.callback_query.register(continue_send_data_yes, lambda call: call.data == "continue_send_data|yes")
     
     router.callback_query.register(check_send_data_ok, lambda call: call.data == "continue_send_data|ok")
+
+    router.callback_query.register(crypto_draw_turn_on, lambda call: call.data == "start|crypto_draw|turn_off")
+
+    router.callback_query.register(crypto_draw_turn_off, lambda call: call.data == "start|crypto_draw|turn_on")

@@ -21,3 +21,7 @@ class UserStates(StatesGroup):
     write_name_for_analyz = State()
 
     write_username_for_analyz = State()
+
+    write_name_for_crypto_draw = State()
+
+    write_username_for_crypto_draw = State()

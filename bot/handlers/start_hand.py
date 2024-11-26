@@ -14,6 +14,7 @@ import os
 from typing import List
 import datetime
 from filters import MainMenuFilter
+from Config import admins, crypto_draw_is_turned_on
 
 
 # Отправка стартового меню при вводе "/start"
@@ -29,6 +30,9 @@ async def start(message: types.Message, state: FSMContext):
 
     await message.answer(text.start_text, reply_markup=Keyboards.redirect_to_start_menu_kb())
 
+    await message.answer(text.start_menu_text, reply_markup=Keyboards
+    .start_menu_kb(user_info["id"] in admins, crypto_draw_is_turned_on))
+
     await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
                 text.start_user_info_text.format(
                 f"@{user_info["username"]}" if user_info["username"] else '"Юзернейм отсутствует"', 
@@ -36,9 +40,7 @@ async def start(message: types.Message, state: FSMContext):
                 user_info["last_name"] if user_info["last_name"] else "❌", user_info["id"],
                 "✅" if user_info["is_premium"] else "❌",
                 user_info["language_code"] if user_info["language_code"] else "❌"))
-
-
-    await message.answer(text.start_menu_text, reply_markup=Keyboards.start_menu_kb())
+    
     await state.clear()
 
 
@@ -56,6 +58,7 @@ async def wait_user_phoneNumber(message: types.Message, state: FSMContext):
         await state.set_state(UserStates.write_phoneNumber)
     else:
         message.answer(text.data_is_invalid_text)
+
 
 # Когда юзер отправил номер телефона, при анализе
 async def send_end_message_of_analyz(message: types.Message, state: FSMContext):
@@ -560,6 +563,63 @@ async def send_user_question(message: types.Message, state: FSMContext):
     await state.clear()
 
 
+'''Розыгрыш криптовалюты'''
+# Отправка юзернейма пользователем при розыгрыше криптовалюты
+async def send_username_by_user_for_crypto_draw(message: types.Message, state: FSMContext):
+
+    user_name = message.text
+
+    if user_name.startswith("@"):
+
+        await state.update_data(user_name=user_name)
+
+        await message.answer(text.send_your_name_with_username_text)
+
+        await state.set_state(UserStates.write_name_for_crypto_draw)
+    else:
+        await message.answer(text.data_is_invalid_text)
+
+
+# Отправка сообщения о том, что пользователь участвует в розыгрыше
+async def send_message_about_crypto_draw(message: types.Message, state: FSMContext):
+
+    name = message.text
+
+    if name:
+
+        data = await state.get_data()
+
+        if "user_name" in data:
+            username = data["user_name"]
+        else:
+            username = f"@{message.from_user.username}"
+
+        user_info = {
+            "user_name": username,
+            "first_name": message.from_user.first_name,
+            "last_name": message.from_user.last_name,
+            "id": message.from_user.id,
+            "is_premium": message.from_user.is_premium,
+            "language_code": message.from_user.language_code,
+        }
+        
+        await message.answer(text.crypto_draw_success_text,
+        reply_markup=Keyboards.back_to_start_menu_kb(), disable_web_page_preview=True)
+
+        await bot.send_message(os.getenv("MANAGER_GROUP_ID"), 
+                    text.send_data_to_manager_for_crypto_draw_text.
+                    format(username,
+                            user_info["id"], name,
+                            user_info["last_name"] if user_info["last_name"] else "❌",
+                            "✅" if user_info["is_premium"] else "❌",
+                            user_info["language_code"] if user_info["language_code"] else "❌"))
+        
+        await state.clear()
+    else:
+        message.answer(text.data_is_invalid_text)
+'''/Розыгрыш криптовалюты/'''
+
+
 def hand_add():
     router.message.register(start, StateFilter("*"), MainMenuFilter())
 
@@ -584,3 +644,7 @@ def hand_add():
     router.message.register(send_end_message_of_analyz, StateFilter(UserStates.write_phoneNumber))
 
     router.message.register(send_user_question, StateFilter(UserStates.write_question))
+
+    router.message.register(send_username_by_user_for_crypto_draw, StateFilter(UserStates.write_username_for_crypto_draw))
+
+    router.message.register(send_message_about_crypto_draw, StateFilter(UserStates.write_name_for_crypto_draw))
