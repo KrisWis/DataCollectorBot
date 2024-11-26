@@ -81,7 +81,7 @@ async def our_contacts(call: types.CallbackQuery):
 
     await bot.send_message(os.getenv("MANAGER_GROUP_ID"),
                 text.user_join_contacts_info_text.format(
-                f"@{user_info["username"]}" if user_info["username"] else '"Юзернейм отсутствует"', 
+                f"@{user_info['username']}" if user_info["username"] else '"Юзернейм отсутствует"', 
                 user_info["first_name"] if user_info["first_name"] else "❌", 
                 user_info["last_name"] if user_info["last_name"] else "❌", user_info["id"],
                 "✅" if user_info["is_premium"] else "❌",
