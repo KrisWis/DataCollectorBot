@@ -14,7 +14,8 @@ import os
 from typing import List
 import datetime
 from filters import MainMenuFilter
-from Config import admins, crypto_draw_is_turned_on
+from Config import admins
+from database.db import get_crypto_draw_is_turned_on
 
 
 # Отправка стартового меню при вводе "/start"
@@ -29,6 +30,8 @@ async def start(message: types.Message, state: FSMContext):
     }
 
     await message.answer(text.start_text, reply_markup=Keyboards.redirect_to_start_menu_kb())
+
+    crypto_draw_is_turned_on = get_crypto_draw_is_turned_on()
 
     await message.answer(text.start_menu_text, reply_markup=Keyboards
     .start_menu_kb(user_info["id"] in admins, crypto_draw_is_turned_on))

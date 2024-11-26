@@ -4,11 +4,15 @@ import handlers
 import asyncio
 import logging
 from middlewares import MediaGroupMiddleware
+from database.db import init_db
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='Logs.log', level=logging.INFO)
 
 async def on_startup() -> None:
+
+    # Инициализация базы данных
+    init_db()
 
     # Определяем команды и добавляем их в бота
     commands = [

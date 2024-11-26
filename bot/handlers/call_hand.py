@@ -7,13 +7,16 @@ from keyboards import Keyboards
 from InstanceBot import bot
 import os
 from Config import admins
-import Config
+from database.db import get_crypto_draw_is_turned_on, set_crypto_draw_is_turned_off, set_crypto_draw_is_turned_on
 
 
 # Хендлер после нажатия кнопки "Назад". Отправка сообщения пользователю с главным меню.
 async def start(call: types.CallbackQuery, state: FSMContext):
+
+    crypto_draw_is_turned_on = get_crypto_draw_is_turned_on()
+
     await call.message.edit_text(text.start_menu_text, reply_markup=Keyboards
-    .start_menu_kb(call.from_user.id in admins, Config.crypto_draw_is_turned_on))
+    .start_menu_kb(call.from_user.id in admins, crypto_draw_is_turned_on))
 
     await state.clear()
 
@@ -246,7 +249,7 @@ async def wait_name_for_crypto_draw(call: types.CallbackQuery, state: FSMContext
 
 # Хендлер после нажатия кнопки "Включить розыгрыш".
 async def crypto_draw_turn_on(call: types.CallbackQuery):
-    Config.crypto_draw_is_turned_on = True
+    set_crypto_draw_is_turned_on()
 
     await call.message.edit_text(text.crypto_draw_turn_on_text, 
         reply_markup=Keyboards.back_to_start_menu_kb())
@@ -254,7 +257,7 @@ async def crypto_draw_turn_on(call: types.CallbackQuery):
 
 # Хендлер после нажатия кнопки "Выключить розыгрыш".
 async def crypto_draw_turn_off(call: types.CallbackQuery):
-    Config.crypto_draw_is_turned_on = False
+    set_crypto_draw_is_turned_off()
 
     await call.message.edit_text(text.crypto_draw_turn_off_text, 
         reply_markup=Keyboards.back_to_start_menu_kb())
