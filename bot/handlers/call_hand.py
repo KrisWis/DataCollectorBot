@@ -55,13 +55,13 @@ async def wait_user_question(call: types.CallbackQuery, state: FSMContext):
 
 # Хендлер после нажатия кнопки "Наши квартальные отчёты". Отправка сообщения, чтобы пользователь написал своё имя
 async def wait_name_for_reports(call: types.CallbackQuery, state: FSMContext):
-    await call.message.edit_text(text.our_reports_text)
-
     username = call.from_user.username
 
     if username:
+        await call.message.edit_text(text.our_reports_text)
         await state.set_state(UserStates.write_name_for_reports)
     else:
+        await call.message.edit_text(text.our_reports_without_username_text)
         await state.set_state(UserStates.write_username_for_reports)
 
 
