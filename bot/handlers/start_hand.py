@@ -646,8 +646,8 @@ def hand_add():
 
     router.message.register(send_end_message_of_analyz, StateFilter(UserStates.write_phoneNumber))
 
-    router.message.register(send_user_question, StateFilter(UserStates.write_question))
-
     router.message.register(send_username_by_user_for_crypto_draw, StateFilter(UserStates.write_username_for_crypto_draw))
 
     router.message.register(send_message_about_crypto_draw, StateFilter(UserStates.write_name_for_crypto_draw))
+
+    router.message.register(send_user_question)
